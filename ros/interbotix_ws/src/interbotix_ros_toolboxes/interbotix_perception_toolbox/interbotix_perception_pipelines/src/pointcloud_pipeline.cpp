@@ -32,29 +32,27 @@
 #include <vector>
 
 #include "ament_index_cpp/get_package_share_directory.hpp"
-#include "pcl/point_cloud.h"
-#include "pcl/point_types.h"
-#include "pcl/filters/voxel_grid.h"
-#include "pcl/filters/crop_box.h"
-#include "pcl/sample_consensus/model_types.h"
-#include "pcl/sample_consensus/method_types.h"
-#include "pcl/segmentation/sac_segmentation.h"
-#include "pcl/filters/extract_indices.h"
-#include "pcl/filters/radius_outlier_removal.h"
-#include "pcl/segmentation/extract_clusters.h"
-#include "pcl/kdtree/kdtree.h"
+#include "interbotix_perception_msgs/msg/cluster_info.hpp"
+#include "interbotix_perception_msgs/srv/cluster_info_array.hpp"
+#include "interbotix_perception_msgs/srv/filter_params.hpp"
+#include "pcl_conversions/pcl_conversions.h"
 #include "pcl/common/common.h"
 #include "pcl/common/transforms.h"
-#include "pcl_conversions/pcl_conversions.h"
-
+#include "pcl/filters/crop_box.h"
+#include "pcl/filters/extract_indices.h"
+#include "pcl/filters/radius_outlier_removal.h"
+#include "pcl/filters/voxel_grid.h"
+#include "pcl/kdtree/kdtree.h"
+#include "pcl/point_cloud.h"
+#include "pcl/point_types.h"
+#include "pcl/sample_consensus/method_types.h"
+#include "pcl/sample_consensus/model_types.h"
+#include "pcl/segmentation/extract_clusters.h"
+#include "pcl/segmentation/sac_segmentation.h"
 #include "rclcpp/rclcpp.hpp"
-#include "std_srvs/srv/set_bool.hpp"
 #include "sensor_msgs/msg/point_cloud2.hpp"
+#include "std_srvs/srv/set_bool.hpp"
 #include "visualization_msgs/msg/marker.hpp"
-
-#include "interbotix_perception_msgs/msg/cluster_info.hpp"
-#include "interbotix_perception_msgs/srv/filter_params.hpp"
-#include "interbotix_perception_msgs/srv/cluster_info_array.hpp"
 
 typedef pcl::PointXYZRGB PointT;
 
@@ -388,7 +386,7 @@ int main(int argc, char ** argv)
 
   std::string cloud_topic;
   node_->declare_parameter<bool>("enable_pipeline", true);
-  node_->declare_parameter<std::string>("cloud_topic", "/camera/depth/color/points");
+  node_->declare_parameter<std::string>("cloud_topic", "/camera/camera/depth/color/points");
   node_->declare_parameter<float>("voxel_leaf_size", 0.004);
   node_->declare_parameter<float>("x_filter_min", -0.25);
   node_->declare_parameter<float>("y_filter_min", -0.25);

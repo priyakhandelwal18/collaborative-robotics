@@ -54,7 +54,7 @@ def launch_setup(context, *args, **kwargs):
     lifecycle_nodes = [
         'controller_server',
         'planner_server',
-        'recoveries_server',
+        # 'recoveries_server',
         'bt_navigator',
         'waypoint_follower'
     ]
@@ -101,16 +101,16 @@ def launch_setup(context, *args, **kwargs):
         remappings=remappings,
     )
 
-    recoveries_server_node = Node(
-        package='nav2_recoveries',
-        executable='recoveries_server',
-        name='recoveries_server',
-        output={'both': 'screen'},
-        parameters=[
-            configured_params
-        ],
-        remappings=remappings,
-    )
+    # recoveries_server_node = Node(
+    #     package='nav2_recoveries',
+    #     executable='recoveries_server',
+    #     name='recoveries_server',
+    #     output={'both': 'screen'},
+    #     parameters=[
+    #         configured_params
+    #     ],
+    #     remappings=remappings,
+    # )
 
     bt_navigator_node = Node(
         package='nav2_bt_navigator',
@@ -150,7 +150,7 @@ def launch_setup(context, *args, **kwargs):
         set_logging_env_var,
         controller_server_node,
         planner_server_node,
-        recoveries_server_node,
+        # recoveries_server_node,
         bt_navigator_node,
         waypoint_follower_node,
         lifecycle_manager_navigation_node,

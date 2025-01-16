@@ -36,8 +36,8 @@ Note that this script assumes you already have a map built
 
 To get started, open a terminal and run the command:
 
-    ros2 launch interbotix_xslocobot_control xslocobot_control.launch robot_model:=locobot_wx200
-        use_nav:=true localization:=true
+    ros2 launch interbotix_xslocobot_control xslocobot_control.launch robot_model:=locobot_wx250s
+        use_nav:=true 
 
 Then change to this directory and run the command:
 
@@ -48,15 +48,31 @@ or run the command:
     ros2 run interbotix_xslocobot_control move_base.py
 """
 
+from geometry_msgs.msg import Pose
+
+
 
 def main():
     locobot = InterbotixLocobotXS(
         robot_model='locobot_wx250s',
         robot_name='locobot',
-        arm_model='mobile_wx250s'
+        arm_model='mobile_wx250s',
+        use_base = True,
+        use_nav = True,
     )
     # import pdb; pdb.set_trace()
-    locobot.base.command_pose_xyyaw(x=0.1, y=0., yaw=0, blocking=True)
+    # locobot.base.command_pose_xyyaw(x=0.1, y=0., yaw=0, blocking=True)
+    # locobot.base.command_position_xyyaw(x=0.01, y=0., yaw=0, blocking=True)
+    
+    # Create the goal position
+    goal_position = Pose()
+    goal_position.position.x = 0.02  # Move 2 cm forward along the x-axis
+    goal_position.position.y = 0.0   # No lateral movement
+    goal_position.orientation.z = 0.0  # No rotation, keep the orientation as is
+
+    # Command the robot to move forward 2 cm
+    locobot.base.command_position(goal_position=goal_position, blocking=False)
+
 
     locobot.shutdown()
 

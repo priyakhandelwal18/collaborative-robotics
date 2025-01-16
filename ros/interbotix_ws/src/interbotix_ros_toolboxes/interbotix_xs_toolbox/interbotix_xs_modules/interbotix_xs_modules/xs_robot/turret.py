@@ -41,6 +41,8 @@ from interbotix_xs_modules.xs_robot.core import InterbotixRobotXSCore
 from interbotix_xs_msgs.msg import JointGroupCommand, JointSingleCommand
 from interbotix_xs_msgs.srv import OperatingModes, RegisterValues, RobotInfo
 import rclpy
+from rclpy.constants import S_TO_NS
+from rclpy.duration import Duration
 from rclpy.executors import MultiThreadedExecutor
 from rclpy.logging import LoggingSeverity
 
@@ -265,7 +267,7 @@ class InterbotixTurretXSInterface:
                         value=profile_velocity
                     )
                 )
-                self.core.robot_spin_once_until_future_complete(
+                self.core.wait_until_future_complete(
                     future=future_profile_velocity,
                     timeout_sec=0.1
                 )
@@ -278,7 +280,7 @@ class InterbotixTurretXSInterface:
                         value=int(profile_velocity * 1000)
                     )
                 )
-                self.core.robot_spin_once_until_future_complete(
+                self.core.wait_until_future_complete(
                     future=future_profile_velocity,
                     timeout_sec=0.1
                 )
@@ -296,7 +298,7 @@ class InterbotixTurretXSInterface:
                         value=profile_acceleration
                     )
                 )
-                self.core.robot_spin_once_until_future_complete(
+                self.core.wait_until_future_complete(
                     future=future_profile_acceleration,
                     timeout_sec=0.1
                 )
@@ -309,7 +311,7 @@ class InterbotixTurretXSInterface:
                         value=int(profile_acceleration * 1000)
                     )
                 )
-                self.core.robot_spin_once_until_future_complete(
+                self.core.wait_until_future_complete(
                     future=future_profile_acceleration,
                     timeout_sec=0.1
                 )
@@ -351,9 +353,12 @@ class InterbotixTurretXSInterface:
             self.core.pub_single.publish(JointSingleCommand(name=joint_name, cmd=position))
             self.info[joint_name]['command'] = position
             if (self.info[joint_name]['profile_type'] == 'time' and blocking):
-                time.sleep(self.info[joint_name]['profile_velocity'])
+                print(self.info[joint_name]['profile_velocity'])
+                self.core.get_clock().sleep_for(
+                   Duration(nanoseconds=int(self.info[joint_name]['profile_velocity'] * S_TO_NS))
+                )
             else:
-                time.sleep(delay)
+                self.core.get_clock().sleep_for(Duration(nanoseconds=int(delay * S_TO_NS)))
         else:
             self.core.get_logger().error(
                 f"Goal position is outside the '{joint_name}' joint's limits. Will not execute."
@@ -535,14 +540,16 @@ class InterbotixTurretXSInterface:
                 (self.info[self.tilt_name]['profile_type'] == 'time') and
                 (blocking)
             ):
-                time.sleep(
-                    max(
-                        self.info[self.pan_name]['profile_velocity'],
-                        self.info[self.tilt_name]['profile_velocity']
+                self.core.get_clock().sleep_for(
+                    Duration(
+                        nanoseconds=int(max(
+                            self.info[self.pan_name]['profile_velocity'],
+                            self.info[self.tilt_name]['profile_velocity']
+                        ) * S_TO_NS)
                     )
                 )
             else:
-                time.sleep(delay)
+                self.core.get_clock().sleep_for(Duration(nanoseconds=int(delay * S_TO_NS)))
         else:
             self.core.get_logger().error(
                 'One or both goal positions are outside the limits. Will not execute'
@@ -577,7 +584,7 @@ class InterbotixTurretXSInterface:
                     profile_acceleration=profile_acceleration
                 )
             )
-            self.core.robot_spin_once_until_future_complete(
+            self.core.wait_until_future_complete(
                 future=future_operating_modes,
                 timeout_sec=0.1
             )
@@ -594,7 +601,7 @@ class InterbotixTurretXSInterface:
                     profile_acceleration=int(profile_acceleration * 1000)
                 )
             )
-            self.core.robot_spin_once_until_future_complete(
+            self.core.wait_until_future_complete(
                 future=future_operating_modes,
                 timeout_sec=0.1
             )

@@ -1,4 +1,4 @@
-# Copyright 2022 Trossen Robotics
+# Copyright 2024 Trossen Robotics
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -32,7 +32,6 @@ Contains the `InterbotixGripperXS` and `InterbotixGripperXSInterface` classes.
 These two classes can be used to control an X-Series standalone gripper using Python.
 """
 
-import sys
 from threading import Thread
 import time
 
@@ -40,6 +39,8 @@ from interbotix_xs_modules.xs_robot.core import InterbotixRobotXSCore
 from interbotix_xs_msgs.msg import JointSingleCommand
 from interbotix_xs_msgs.srv import RobotInfo
 import rclpy
+from rclpy.constants import S_TO_NS
+from rclpy.duration import Duration
 from rclpy.executors import MultiThreadedExecutor
 from rclpy.logging import LoggingSeverity
 
@@ -170,13 +171,13 @@ class InterbotixGripperXSInterface:
             * (gripper_pressure_upper_limit - gripper_pressure_lower_limit)
         )
 
-        self.tmr_gripper_state = self.core.create_timer(
+        self.tmr_gripper_state = self.core.get_node().create_timer(
             timer_period_sec=0.02, callback=self.gripper_state
         )
 
         while rclpy.ok() and not self.future_gripper_info.done():
-            rclpy.spin_until_future_complete(self.core, self.future_gripper_info)
-            rclpy.spin_once(self.core)
+            rclpy.spin_until_future_complete(self.core.get_node(), self.future_gripper_info)
+            rclpy.spin_once(self.core.get_node())
 
         self.gripper_info: RobotInfo.Response = self.future_gripper_info.result()
         self.left_finger_index = self.core.js_index_map[self.gripper_info.joint_names[0]]
@@ -184,20 +185,19 @@ class InterbotixGripperXSInterface:
         self.left_finger_upper_limit = self.gripper_info.joint_upper_limits[0]
 
         if self.gripper_info.mode not in ('current', 'pwm'):
-            self.core.get_logger().err(
-                "Please set the gripper's 'operating mode' to 'pwm' or 'current'."
+            self.core.get_node().get_logger().warn(
+                f"Motor '{gripper_name}' operating mode not set to 'pwm' or 'current'."
             )
-            sys.exit(1)
 
-        time.sleep(0.5)
-        self.core.get_logger().info(
+        self.core.get_node().get_clock().sleep_for(Duration(nanoseconds=int(0.5*S_TO_NS)))
+        self.core.get_node().get_logger().info(
             (
                 '\n'
                 f'\tGripper Name: {self.gripper_name}\n'
                 f'\tGripper Pressure: {self.gripper_pressure*100}%'
             )
         )
-        self.core.get_logger().info('Initialized InterbotixGripperXSInterface!')
+        self.core.get_node().get_logger().info('Initialized InterbotixGripperXSInterface!')
 
     def gripper_state(self) -> None:
         """Stop the gripper moving past its limits when in PWM mode using a ROS Timer Callback."""
@@ -236,7 +236,7 @@ class InterbotixGripperXSInterface:
         ):
             self.core.pub_single.publish(self.gripper_command)
             self.gripper_moving = True
-            time.sleep(delay)
+            self.core.get_node().get_clock().sleep_for(Duration(nanoseconds=int(delay*S_TO_NS)))
 
     def set_pressure(self, pressure: float) -> None:
         """
@@ -264,3 +264,43 @@ class InterbotixGripperXSInterface:
         :param delay: (optional) number of seconds to delay before returning control to the user
         """
         self.gripper_controller(-self.gripper_value, delay)
+
+    def get_gripper_position(self) -> float:
+        """
+        Get the gripper joint position.
+
+        :return: position of the gripper joint [rad]
+        """
+        self.core.get_node().logdebug('Getting gripper joint position')
+        with self.core.js_mutex:
+            return self.core.joint_states.position[self.core.js_index_map[self.gripper_name]]
+
+    def get_gripper_velocity(self) -> float:
+        """
+        Get the gripper joint velocity.
+
+        :return: velocity of the gripper joint [rad/s]
+        """
+        self.core.get_node().logdebug('Getting gripper joint velocity')
+        with self.core.js_mutex:
+            return self.core.joint_states.velocity[self.core.js_index_map[self.gripper_name]]
+
+    def get_gripper_effort(self) -> float:
+        """
+        Get the gripper joint effort.
+
+        :return: effort of the gripper joint [Nm or load % depending on the motor joint]
+        """
+        self.core.get_node().logdebug('Getting gripper joint effort')
+        with self.core.js_mutex:
+            return self.core.joint_states.effort[self.core.js_index_map[self.gripper_name]]
+
+    def get_finger_position(self) -> float:
+        """
+        Get the gripper's left finger position.
+
+        :return: position of the gripper's left finger joint [m]
+        """
+        self.core.get_node().logdebug('Getting gripper finger joint position')
+        with self.core.js_mutex:
+            return self.core.joint_states.position[self.left_finger_index]

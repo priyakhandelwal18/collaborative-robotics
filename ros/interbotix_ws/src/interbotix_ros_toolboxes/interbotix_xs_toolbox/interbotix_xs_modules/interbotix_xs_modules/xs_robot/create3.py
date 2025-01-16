@@ -33,14 +33,14 @@ These classes can be used to control a Create 3 mobile base for Interbotix X-Ser
 Python.
 """
 
-import time
-
-from builtin_interfaces.msg import Duration
+# from builtin_interfaces.msg import Duration
+from rclpy.duration import Duration
 from geometry_msgs.msg import Pose
 from interbotix_xs_modules.xs_robot.core import InterbotixRobotXSCore
 from interbotix_xs_modules.xs_robot.mobile_base import InterbotixMobileBaseInterface
 from irobot_create_msgs.msg import AudioNote, AudioNoteVector
 from irobot_create_msgs.srv import ResetPose
+from rclpy.constants import S_TO_NS
 from std_msgs.msg import Header
 
 
@@ -89,13 +89,13 @@ class InterbotixCreate3Interface(InterbotixMobileBaseInterface):
             srv_name='mobile_base/reset_pose',
         )
 
-        time.sleep(0.5)
+        self.core.get_clock().sleep_for(Duration(nanosec=int(0.5*S_TO_NS)))
         self.core.get_logger().info('Initialized InterbotixCreate3Interface!')
 
     def reset_odom(self) -> None:
         """Reset odometry to zero."""
         future_reset_odom = self.client_reset_pose.call_async(ResetPose.Request(pose=Pose()))
-        self.core.robot_spin_once_until_future_complete(future_reset_odom)
+        self.core.wait_until_future_complete(future_reset_odom)
         self.play_sound(
             sound=AudioNoteVector(
                 header=Header(

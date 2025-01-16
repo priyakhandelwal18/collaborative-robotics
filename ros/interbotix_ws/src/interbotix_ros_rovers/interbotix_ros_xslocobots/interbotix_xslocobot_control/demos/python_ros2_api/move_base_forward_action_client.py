@@ -18,19 +18,19 @@ class MoveBaseActionClient(Node):
 
         self.get_logger().info('Sending goal...')
         self._client.wait_for_server()
-        future = self._client.send_goal_async(goal)
-        future.add_done_callback(self.goal_response_callback)
+        # future = self._client.send_goal_async(goal)
+        # future.add_done_callback(self.goal_response_callback)
 
-    def goal_response_callback(self, future):
-        result = future.result()
-        if result:
-            self.get_logger().info('Goal succeeded!')
-        else:
-            self.get_logger().warn('Goal failed.')
+    # def goal_response_callback(self, future):
+    #     result = future.result()
+    #     if result:
+    #         self.get_logger().info('Goal succeeded!')
+    #     else:
+    #         self.get_logger().warn('Goal failed.')
         
-        # After the goal finishes, shutdown ROS
-        self.destroy_node()
-        rclpy.shutdown()
+    #     # After the goal finishes, shutdown ROS
+    #     self.destroy_node()
+    #     rclpy.shutdown()
 
 def main():
     rclpy.init()

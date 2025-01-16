@@ -43,6 +43,8 @@ _XSARM_MODELS = (
     'mobile_px100',
     'mobile_wx200',
     'mobile_wx250s',
+    'aloha_wx250s',
+    'aloha_vx300s',
 )
 
 # Tuple of valid Interbotix LoCoBot models
@@ -51,6 +53,16 @@ _XSLOCOBOT_MODELS = (
     'locobot_px100',
     'locobot_wx200',
     'locobot_wx250s',
+)
+
+# Tuple of valid Interbotix Turret models
+_XSTURRET_MODELS = (
+    'pxxls_cam',
+    'pxxls',
+    'vxxmd',
+    'vxxms',
+    'wxxmd',
+    'wxxms',
 )
 
 
@@ -62,6 +74,11 @@ def get_interbotix_xsarm_models() -> Tuple[str]:
 def get_interbotix_xslocobot_models() -> Tuple[str]:
     """Get the tuple of valid Interbotix LoCoBot models."""
     return _XSLOCOBOT_MODELS
+
+
+def get_interbotix_xsturret_models() -> Tuple[str]:
+    """Get the tuple of valid Interbotix Turret models."""
+    return _XSTURRET_MODELS
 
 
 def get_interbotix_xsarm_joints(robot_model: str) -> List[str]:
@@ -76,7 +93,7 @@ def get_interbotix_xsarm_joints(robot_model: str) -> List[str]:
         return ['waist', 'shoulder', 'elbow', 'wrist_angle', 'left_finger']
     elif robot_model in ('px150', 'rx150', 'rx200', 'wx200', 'wx250', 'vx250', 'vx300'):
         return ['waist', 'shoulder', 'elbow', 'wrist_angle', 'wrist_rotate', 'left_finger']
-    elif robot_model in ('mobile_wx250s', 'wx250s', 'vx300s'):
+    elif robot_model in ('mobile_wx250s', 'wx250s', 'vx300s', 'aloha_wx250s', 'aloha_vx300s'):
         return [
             'waist', 'shoulder', 'elbow', 'forearm_roll',
             'wrist_angle', 'wrist_rotate', 'left_finger'
