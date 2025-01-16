@@ -11,10 +11,11 @@ Have a look at the [Create® 3 documentation](https://iroboteducation.github.io/
 
 Required dependencies:
 
-1. [ROS 2 galactic](https://docs.ros.org/en/galactic/Installation/Ubuntu-Install-Debians.html)
+1. [ROS 2 humble](https://docs.ros.org/en/humble/Installation/Ubuntu-Install-Debians.html)
 2. ROS 2 dev tools:
     - [colcon-common-extensions](https://pypi.org/project/colcon-common-extensions/)
     - [rosdep](https://pypi.org/project/rosdep/): Used to install dependencies when building from sources
+    - [vcs](https://pypi.org/project/vcstool/): Automates cloning of git repositories declared on a YAML file.
 
 Besides the aforementioned dependencies you will also need at least one among Ignition Gazebo and Classic Gazebo
 
@@ -22,13 +23,13 @@ Besides the aforementioned dependencies you will also need at least one among Ig
 
 Install [Gazebo 11](http://gazebosim.org/tutorials?tut=install_ubuntu)
 
-#### Ignition Edifice
+#### Ignition Fortress
 
 ```bash
 sudo apt-get update && sudo apt-get install wget
 sudo sh -c 'echo "deb http://packages.osrfoundation.org/gazebo/ubuntu-stable `lsb_release -cs` main" > /etc/apt/sources.list.d/gazebo-stable.list'
 wget http://packages.osrfoundation.org/gazebo.key -O - | sudo apt-key add -
-sudo apt-get update && sudo apt-get install ignition-edifice
+sudo apt-get update && sudo apt-get install ignition-fortress
 ```
 
 ## Build
@@ -52,7 +53,7 @@ rosdep install --from-path src -yi
 - Build the workspace with:
 
 ```bash
-export IGNITION_VERSION=edifice
+export IGNITION_VERSION=fortress
 colcon build --symlink-install
 source install/local_setup.bash
 ```
@@ -63,11 +64,34 @@ source install/local_setup.bash
 
 ##### Empty world
 
-Create® 3 can be spawned in an empty world in Gazebo and monitored through RViz with
+Create® 3 can be spawned in an empty world in Gazebo and monitored through RViz with:
 
 ```bash
 ros2 launch irobot_create_gazebo_bringup create3_gazebo.launch.py
 ```
+
+The spawn point can be changed with the `x`, `y`, `z` and `yaw` launch arguments:
+
+```bash
+ros2 launch irobot_create_gazebo_bringup create3_gazebo.launch.py x:=1.0 y:=0.5 yaw:=1.5707
+```
+
+##### Namespacing
+
+A namespace can be applied to the robot using the `namespace` launch argument:
+
+```bash
+ros2 launch irobot_create_gazebo_bringup create3_gazebo.launch.py namespace:=my_robot
+```
+
+Multiple robots can be spawned with unique namespaces:
+
+```bash
+ros2 launch irobot_create_gazebo_bringup create3_gazebo.launch.py namespace:=robot1
+ros2 launch irobot_create_gazebo_bringup create3_spawn.launch.py namespace:=robot2 x:=1.0
+```
+
+> :warning: `create3_gazebo.launch.py` should only be used once as it launches the Gazebo simulator itself. Additional robots should be spawned with `create3_spawn.launch.py`. Namespaces and spawn points should be unique for each robot.
 
 ##### AWS house
 
@@ -95,6 +119,29 @@ Create® 3 can be spawned in a demo world in Ignition and monitored through RViz
 ```bash
 ros2 launch irobot_create_ignition_bringup create3_ignition.launch.py
 ```
+
+The spawn point can be changed with the `x`, `y`, `z` and `yaw` launch arguments:
+
+```bash
+ros2 launch irobot_create_ignition_bringup create3_ignition.launch.py x:=1.0 y:=0.5 yaw:=1.5707
+```
+
+##### Namespacing
+
+A namespace can be applied to the robot using the `namespace` launch argument:
+
+```bash
+ros2 launch irobot_create_ignition_bringup create3_ignition.launch.py namespace:=my_robot
+```
+
+Multiple robots can be spawned with unique namespaces:
+
+```bash
+ros2 launch irobot_create_ignition_bringup create3_ignition.launch.py namespace:=robot1
+ros2 launch irobot_create_ignition_bringup create3_spawn.launch.py namespace:=robot2 x:=1.0
+```
+
+> :warning: `create3_ignition.launch.py` should only be used once as it launches the Ignition simulator itself. Additional robots should be spawned with `create3_spawn.launch.py`. Namespaces and spawn points should be unique for each robot.
 
 ## Package layout
 
