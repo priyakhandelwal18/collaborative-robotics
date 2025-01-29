@@ -12,25 +12,25 @@ sudo rosdep init
 rosdep update --include-eol-distros
 
 # Install ROS package
-sudo apt-get install -yq ros-galactic-rtabmap-ros
+sudo apt-get install -yq ros-humble-rtabmap-ros
 
 # Clone necessary repositories
-git clone https://github.com/Interbotix/interbotix_ros_core.git -b galactic --recurse-submodules
-git clone https://github.com/Interbotix/interbotix_ros_rovers.git -b galactic
-git clone https://github.com/Interbotix/interbotix_ros_toolboxes.git -b galactic
+git clone https://github.com/Interbotix/interbotix_ros_core.git -b humble --recurse-submodules
+git clone https://github.com/Interbotix/interbotix_ros_rovers.git -b humble
+git clone https://github.com/Interbotix/interbotix_ros_toolboxes.git -b humble
 git clone https://github.com/ros-planning/moveit_visual_tools.git -b ros2
 
 # Install dependencies
 cd ..
-rosdep install --from-paths src --ignore-src --rosdistro galactic -r -y
+rosdep install --from-paths src --ignore-src --rosdistro humble -r -y
 
 # Build the workspace
 cd dev_ws
-source /opt/ros/galactic/setup.bash
+source /opt/ros/humble/setup.bash
 colcon build
 
 # Install additional ROS2 packages
-sudo apt install -y ros-galactic-irobot-create-description
+sudo apt install -y ros-humble-irobot-create-description
 pip install modern_robotics
 
 sudo apt install -y \
